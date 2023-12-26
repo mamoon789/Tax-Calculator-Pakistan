@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Tax Calculator</string>
+    <string name="tax_bracket_1">Where the annual salary income does not exceed PKR. 600,000 then the rate of the income tax is 0%</string>
+    <string name="tax_bracket_2">Where the annual salary income exceeds PKR. 600,000 but does not exceed PKR. 1,200,000 then the rate of income tax is 2.5% of the amount exceeding PKR. 600,000.</string>
+    <string name="tax_bracket_3">Where the annual salary income exceeds PKR. 1,200,000 but does not exceed PKR. 2,400,000 then the rate of income tax is PKR.15000 + 12.5% of the amount exceeding PKR. 1,200,000.</string>
+    <string name="tax_bracket_4">Where the annual salary income exceeds PKR. 2,400,000 but does not exceed PKR. 3,600,000 then the rate of income tax is PKR. 165,000 + 22.5% of the amount exceeding PKR. 2,400,000.</string>
+    <string name="tax_bracket_5">Where the annual salary income exceeds PKR. 3,600,000 but does not exceed PKR. 6,000,000 then the rate of income tax is PKR. 435,000 + 27.5% of the amount exceeding PKR. 3,600,000.</string>
+    <string name="tax_bracket_6">Where the annual salary income exceeds PKR. 6,000,000 then the rate of income tax is PKR. 1,095,000 + 35% of the amount exceeding PKR. 6,000,000.</string>
+</resources>
