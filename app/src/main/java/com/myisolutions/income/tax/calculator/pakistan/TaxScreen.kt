@@ -1,6 +1,7 @@
 package com.myisolutions.income.tax.calculator.pakistan
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
@@ -57,9 +58,12 @@ fun TaxScreen(viewModel: MainViewModel, onClick: () -> Unit)
                         value = income.value,
                         modifier = Modifier.weight(1f),
                         onValueChange = {
-                            viewModel.updateIncome(it)
-                            viewModel.updateTaxDetail(TaxDetail())
-                            viewModel.updateShowDetailBtn(false)
+                            if (it.matches(Regex("[0-9]*")))
+                            {
+                                viewModel.updateIncome(it)
+                                viewModel.updateTaxDetail(TaxDetail())
+                                viewModel.updateShowDetailBtn(false)
+                            }
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         placeholder = { Text(text = "Your Income") },
@@ -116,6 +120,11 @@ fun TaxScreen(viewModel: MainViewModel, onClick: () -> Unit)
                         .height(75.dp)
                         .padding(vertical = 10.dp),
                     onClick = {
+                        if (income.value.isEmpty())
+                        {
+                            Toast.makeText(context, "Enter income", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         calculateTax(context, income.value, timePeriodSelected.value).let {
                             viewModel.updateTaxDetail(it)
                         }
@@ -134,17 +143,17 @@ fun TaxScreen(viewModel: MainViewModel, onClick: () -> Unit)
                 DrawCard(
                     card = "By Month",
                     incomeLambda = {
-                        if (income.value == "") 0.0
+                        if (!showDetailBtn.value) 0.0
                         else if (timePeriodSelected.value == "Monthly") income.value.toDouble()
                         else income.value.toDouble() / 12
                     },
                     taxLambda = {
-                        if (tax == 0.0) 0.0
+                        if (!showDetailBtn.value) 0.0
                         else if (timePeriodSelected.value == "Monthly") tax
                         else tax / 12
                     },
                     incomeAfterTaxLambda = {
-                        if (income.value == "" || tax == 0.0) 0.0
+                        if (!showDetailBtn.value) 0.0
                         else if (timePeriodSelected.value == "Monthly") income.value.toDouble() - tax
                         else (income.value.toDouble() / 12) - (tax / 12)
                     })
@@ -152,17 +161,17 @@ fun TaxScreen(viewModel: MainViewModel, onClick: () -> Unit)
                 DrawCard(
                     card = "By Year",
                     incomeLambda = {
-                        if (income.value == "") 0.0
+                        if (!showDetailBtn.value) 0.0
                         else if (timePeriodSelected.value == "Monthly") income.value.toDouble() * 12
                         else income.value.toDouble()
                     },
                     taxLambda = {
-                        if (tax == 0.0) 0.0
+                        if (!showDetailBtn.value) 0.0
                         else if (timePeriodSelected.value == "Monthly") tax * 12
                         else tax
                     },
                     incomeAfterTaxLambda = {
-                        if (income.value == "" || tax == 0.0) 0.0
+                        if (!showDetailBtn.value) 0.0
                         else if (timePeriodSelected.value == "Monthly") (income.value.toDouble() * 12) - (tax * 12)
                         else income.value.toDouble() - tax
                     })
@@ -177,7 +186,7 @@ fun TaxScreen(viewModel: MainViewModel, onClick: () -> Unit)
                         exit = fadeOut()
                     ) {
                         val density = LocalDensity.current.density
-                        val animateTransition = rememberInfiniteTransition()
+                        val animateTransition = rememberInfiniteTransition(label = "")
                         val yAnimation = animateTransition.animateFloat(
                             initialValue = 0F,
                             targetValue = -70F,
@@ -188,7 +197,7 @@ fun TaxScreen(viewModel: MainViewModel, onClick: () -> Unit)
                                     easing = FastOutSlowInEasing
                                 ),
                                 repeatMode = RepeatMode.Reverse
-                            )
+                            ), label = ""
                         )
                         Column(
                             modifier = Modifier
@@ -269,7 +278,10 @@ fun calculateTax(context: Context, income: String, timePeriod: String): TaxDetai
     val taxDetail: TaxDetail = when (val yearlyIncome =
         if (timePeriod == "Monthly") income.toDouble() * 12 else income.toDouble())
     {
-        in 1.0 rangeTo 600000.0 -> TaxDetail(context.getString(R.string.tax_bracket_1))
+        in 0.0 rangeTo 600000.0 -> TaxDetail(
+            context.getString(R.string.tax_bracket_1),
+            yearlyIncome
+        )
         in 600000.0 rangeTo 1200000.0 -> TaxDetail(
             (yearlyIncome - 600000) / 100 * 2.5,
             context.getString(R.string.tax_bracket_2),
@@ -278,6 +290,7 @@ fun calculateTax(context: Context, income: String, timePeriod: String): TaxDetai
             yearlyIncome - 600000,
             0.025
         )
+
         in 1200000.0 rangeTo 2400000.0 -> TaxDetail(
             15000 + ((yearlyIncome - 1200000) / 100 * 12.5),
             context.getString(R.string.tax_bracket_3),
@@ -286,6 +299,7 @@ fun calculateTax(context: Context, income: String, timePeriod: String): TaxDetai
             yearlyIncome - 1200000,
             0.125
         )
+
         in 2400000.0 rangeTo 3600000.0 -> TaxDetail(
             165000 + ((yearlyIncome - 2400000) / 100 * 22.5),
             context.getString(R.string.tax_bracket_4),
@@ -294,6 +308,7 @@ fun calculateTax(context: Context, income: String, timePeriod: String): TaxDetai
             yearlyIncome - 2400000,
             0.225
         )
+
         in 3600000.0 rangeTo 6000000.0 -> TaxDetail(
             435000 + ((yearlyIncome - 3600000) / 100 * 27.5),
             context.getString(R.string.tax_bracket_5),
@@ -302,6 +317,7 @@ fun calculateTax(context: Context, income: String, timePeriod: String): TaxDetai
             yearlyIncome - 3600000,
             0.275
         )
+
         else -> TaxDetail(
             1095000 + ((yearlyIncome - 6000000) / 100 * 35.0),
             context.getString(R.string.tax_bracket_6),

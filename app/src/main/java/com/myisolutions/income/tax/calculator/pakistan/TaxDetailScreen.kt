@@ -44,7 +44,7 @@ fun TaxDetailScreen(viewModel: MainViewModel, onClick: () -> Unit)
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     val density = LocalDensity.current.density
-                    val animateTransition = rememberInfiniteTransition()
+                    val animateTransition = rememberInfiniteTransition(label = "")
                     val yAnimation = animateTransition.animateFloat(
                         initialValue = 0F,
                         targetValue = -70F,
@@ -55,7 +55,7 @@ fun TaxDetailScreen(viewModel: MainViewModel, onClick: () -> Unit)
                                 easing = FastOutSlowInEasing
                             ),
                             repeatMode = RepeatMode.Reverse
-                        )
+                        ), label = ""
                     )
                     Column(
                         modifier = Modifier
@@ -110,7 +110,7 @@ fun DrawCard(taxDetail: TaxDetail)
             ) {
                 Text(text = "Tax on exempted amount")
                 Text(
-                    text = String.format("%.1f", taxDetail.taxExempted),
+                    text = String.format("%.1f", taxDetail.taxAmountExempted),
                     textAlign = TextAlign.Right
                 )
             }
@@ -142,7 +142,7 @@ fun DrawCard(taxDetail: TaxDetail)
                     } = ${
                         String.format(
                             "%.1f",
-                            taxDetail.amountLeft * taxDetail.taxPercentageAmountLeft
+                            taxDetail.taxAmountLeft //taxDetail.amountLeft * taxDetail.taxPercentageAmountLeft
                         )
                     }",
                     textAlign = TextAlign.Right
@@ -158,7 +158,7 @@ fun DrawCard(taxDetail: TaxDetail)
                 Text(
                     text = String.format(
                         "%.1f",
-                        taxDetail.taxExempted + (taxDetail.amountLeft * taxDetail.taxPercentageAmountLeft)
+                        taxDetail.taxAmountExempted + taxDetail.taxAmountLeft   //(taxDetail.amountLeft * taxDetail.taxPercentageAmountLeft)
                     ),
                     textAlign = TextAlign.Right
                 )
